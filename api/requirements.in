@@ -1,0 +1,6 @@
+fastapi[all]
+prometheus_fastapi_instrumentator
+mlflow
+pandas
+peft
+transformers==4.42.4

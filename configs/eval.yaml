@@ -1,0 +1,25 @@
+# @package _global_
+
+defaults:
+  - data: llm
+  - model: llm
+  - peft: lora
+  - logger: mlflow
+  - optimizer: adam
+  - scheduler: cosine
+  - trainer: default
+  - paths: default
+  - extras: default
+  - hydra: default
+  - _self_
+
+logger:
+  mlflow:
+    experiment_name: "eval"
+
+task_name: "eval"
+
+tags: ["dev"]
+
+# passing checkpoint path is necessary for evaluation
+ckpt_path: ???

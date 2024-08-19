@@ -1,0 +1,132 @@
+x-build-args-python: &build-args-python
+  DOCKER_BASE_IMAGE_SHA: ${PYTHON_DOCKER_BASE_IMAGE_SHA}
+  DOCKER_PLATFORM: ${DOCKER_PLATFORM}
+
+services:
+  api:
+    build:
+      context: api
+      args:
+        <<: *build-args-python
+    environment:
+      - MLFLOW_TRACKING_URI=http://tracking:5000
+    ports:
+      - 8086:8086
+    volumes:
+      - ./mlruns:/mlruns
+
+  app:
+    build:
+      context: app
+      args:
+        <<: *build-args-python
+    ports:
+      - 8501:8501
+
+  database:
+    image: postgres:16.3@${POSTGRES_DOCKER_BASE_IMAGE_SHA}
+    platform: ${DOCKER_PLATFORM}
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=prefect
+    expose:
+      - 5432
+    volumes:
+      - ./db:/var/lib/postgresql/data
+
+  server:
+    image: prefecthq/prefect:2.19.8-python3.9@${PREFECT_DOCKER_BASE_IMAGE_SHA}
+    platform: ${DOCKER_PLATFORM}
+    restart: always
+    volumes:
+      - ./prefect:/root/.prefect
+    entrypoint: ["/opt/prefect/entrypoint.sh", "prefect", "server", "start"]
+    environment:
+      - PREFECT_UI_URL=http://127.0.0.1:4200/api
+      - PREFECT_API_URL=http://127.0.0.1:4200/api
+      - PREFECT_SERVER_API_HOST=0.0.0.0
+      - PREFECT_API_DATABASE_CONNECTION_URL=postgresql+asyncpg://postgres:postgres@database:5432/prefect
+      # - EXTRA_PIP_PACKAGES=prefect-aws
+    ports:
+      - 4200:4200
+    depends_on:
+      - database
+
+  deployment:
+    build:
+      context: deployment
+      args:
+        <<: *build-args-python
+    volumes:
+      - ./configs:/deployment/configs
+      - ./data:/deployment/data
+      - ./llm:/deployment/llm
+      - ./logs:/deployment/logs
+      - ./mlruns:/mlruns
+      - ${HF_HOME:-~/.cache/huggingface}:/deployment/huggingface # change if u keep hf elsewhere
+    environment:
+      - PREFECT_API_URL=http://server:4200/api
+      - MLFLOW_TRACKING_URI=http://tracking:5000
+      - HF_HOME=/deployment/huggingface
+      - HF_DATASETS_OFFLINE=1
+      # - TRANSFORMERS_OFFLINE=1
+      - HF_HUB_DISABLE_TELEMETRY=1
+    depends_on:
+      - server
+
+  tracking:
+    build:
+      context: tracking
+      args:
+        <<: *build-args-python
+    ports:
+      - 5000:5000
+    volumes:
+      - ./mlruns:/mlruns
+
+  prometheus:
+    image: prom/prometheus:v2.53.2@${PROMETHEUS_DOCKER_BASE_IMAGE_SHA}
+    platform: ${DOCKER_PLATFORM}
+    expose:
+      - 9090
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+
+  pushgateway:
+    image: prom/pushgateway:v1.9.0@${PUSHGATEWAY_DOCKER_BASE_IMAGE_SHA}
+    platform: ${DOCKER_PLATFORM}
+    expose:
+      - 9091
+
+  grafana:
+    image: grafana/grafana:11.1.4@${GRAFANA_DOCKER_BASE_IMAGE_SHA}
+    platform: ${DOCKER_PLATFORM}
+    user: "472"
+    depends_on:
+      - prometheus
+    ports:
+      - 3000:3000
+    volumes:
+      - ./monitoring/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
+      - ./monitoring/dashboard.json:/etc/grafana/provisioning/dashboards/dashboard.json
+      - ./monitoring/dashboard.yml:/etc/grafana/provisioning/dashboards/default.yml
+    environment:
+      - GF_LOG_LEVEL=warn
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+
+  cli:
+    image: prefecthq/prefect:2.19.8-python3.9@${PREFECT_DOCKER_BASE_IMAGE_SHA}
+    platform: ${DOCKER_PLATFORM}
+    entrypoint: "bash"
+    working_dir: "/root/flows"
+    volumes:
+      - ./flows:/root/flows
+    environment:
+      - PREFECT_API_URL=http://server:4200/api
+    profiles: ["cli"]

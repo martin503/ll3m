@@ -1,0 +1,11 @@
+# https://mlflow.org
+
+mlflow:
+  _target_: lightning.pytorch.loggers.mlflow.MLFlowLogger
+  # tracking_uri: http://tracking:5000
+  tags: null
+  prefix: ""
+  log_model: True
+  # artifact_location: /mlruns
+  # run_name: ""
+  # run_id: ""

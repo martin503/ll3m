@@ -1,0 +1,12 @@
+_target_: llm.data.llm_datamodule.LLMDataModule
+train_csv: ${paths.data_dir}/train.csv
+predict_csv: ${paths.data_dir}/test.csv
+tokenizer:
+  _target_: transformers.AutoTokenizer.from_pretrained
+  pretrained_model_name_or_path: openai-community/gpt2
+  clean_up_tokenization_spaces: False
+  use_fast: False
+batch_size: 4 # Needs to be divisible by the number of devices (e.g., if in a distributed setup)
+train_val_test_split: [80, 10, 10]
+num_workers: 0
+pin_memory: False

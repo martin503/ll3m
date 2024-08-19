@@ -1,0 +1,6 @@
+_target_: peft.LoraConfig
+r: 4
+lora_alpha: 16
+lora_dropout: 0.1
+bias: none
+task_type: CAUSAL_LM

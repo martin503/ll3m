@@ -1,0 +1,16 @@
+prefect
+mlflow
+numpy
+pandas
+loguru
+torch
+lightning
+transformers==4.42.4
+tokenizers
+datasets
+accelerate
+peft
+hydra-core
+hydra-optuna-sweeper
+hydra_colorlog
+prometheus-client

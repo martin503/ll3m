@@ -1,0 +1,4 @@
+loguru_progress_bar:
+  _target_: llm.utils.progress_bar.LoguruProgressBar
+  log_every_n_steps: 2
+  log_every_n_epochs: 1

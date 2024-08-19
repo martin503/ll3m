@@ -1,0 +1,8 @@
+# These owners will be the default owners for everything in
+# the repo. Unless a later match takes precedence,
+# @martin503 and will be requested for
+# review when someone opens a pull request.
+*       @martin503
+
+# Only the owner of the repo has access to .github
+.github/ @martin503

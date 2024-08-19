@@ -1,0 +1,8 @@
+db_username            = "testuser"
+db_password            = "testpassword"
+grafana_admin_user     = "admin"
+grafana_admin_password = "admin"
+api_image              = "ll3m-api:latest"
+app_image              = "ll3m-app:latest"
+mlflow_image           = "ll3m-mlflow:latest"
+deployments_image      = "ll3m-deployment:latest"

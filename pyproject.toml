@@ -1,0 +1,71 @@
+[project]
+name = "ll3m"
+version = "0.1.0"
+description = "Starter for your ML projects"
+authors = [
+    {name = "Marcin Mazur", email = "marcin.mazur.mimuw@gmail.com"},
+]
+dependencies = [
+    "prefect",
+    "mlflow",
+    "numpy",
+    "pandas",
+    "matplotlib",
+    "pytest",
+    "loguru",
+    "pre-commit",
+    "kaggle",
+    "terraform-local",
+    "awscli-local",
+    "torch",
+    "lightning",
+    "torchvision",
+    "transformers==4.42.4",
+    "tokenizers",
+    "datasets",
+    "accelerate",
+    "peft",
+    "hydra-core",
+    "hydra-optuna-sweeper",
+    "hydra_colorlog",
+    "prometheus-client",
+    "fastapi[all]",
+    "prometheus_fastapi_instrumentator",
+    "streamlit"
+]
+requires-python = "==3.9.*"
+readme = "README.md"
+license = {text = "MIT"}
+
+[tool.pyright] # You are welcome fellow zed users :)
+venvPath = "."
+venv = ".venv"
+
+[tool.isort]
+known_third_party = ["prefect"]
+
+[tool.pytest.ini_options]
+addopts = [
+  "--color=yes",
+  "--durations=0",
+  "--strict-markers",
+  "--doctest-modules",
+]
+filterwarnings = [
+  "ignore::DeprecationWarning",
+  "ignore::UserWarning",
+]
+log_cli = "True"
+markers = [
+  "slow: slow tests",
+]
+minversion = "6.0"
+testpaths = "tests/"
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: nocover",
+    "raise NotImplementedError",
+    "raise NotImplementedError()",
+    "if __name__ == .__main__.:",
+]

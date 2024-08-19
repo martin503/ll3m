@@ -1,0 +1,15 @@
+_target_: llm.models.mnist_module.MNISTModule
+
+net:
+  _target_: llm.models.components.simple_dense_net.SimpleDenseNet
+  input_size: 784
+  lin1_size: 64
+  lin2_size: 128
+  lin3_size: 64
+  output_size: 10
+
+scheduler: ${scheduler}
+optimizer: ${optimizer}
+
+# compile model for faster training with pytorch 2.0
+compile: false

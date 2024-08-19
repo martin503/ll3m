@@ -1,0 +1,12 @@
+_target_: llm.models.llm_module.LLMModule
+
+net:
+  _target_: transformers.GPT2LMHeadModel.from_pretrained
+  pretrained_model_name_or_path: openai-community/gpt2
+
+peft_config: ${peft}
+scheduler: ${scheduler}
+optimizer: ${optimizer}
+
+# compile model for faster training with pytorch 2.0
+compile: false
